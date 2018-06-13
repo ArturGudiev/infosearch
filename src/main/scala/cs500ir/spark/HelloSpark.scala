@@ -13,6 +13,19 @@ object HelloSpark {
 //      .config("spark.some.config.option", "some-value")
 //      .getOrCreate()
 
+    //get best reviewer(через файл Артура)
+    /*val df = spark.read.json("contributors.txt")
+    df.show()
+
+    val finaldf = df.select("repository", "contributors")
+      .withColumn("additions", explode(col("contributors.additions")))
+      .withColumn("login", explode(col("contributors.login")))
+      .drop("contributors").drop("repository")
+      .groupBy("login").sum("additions")
+      .orderBy(desc("sum(additions)"))
+      .take(1).last
+    println(finaldf)*/
+
     LocalUtils.setStreamingLogLevels()
     val searchStr = "css"
 
