@@ -10,7 +10,7 @@ import org.apache.spark.streaming.receiver.Receiver
 import scala.util.parsing.json.JSON
 
 case class Order(total: Double, items: List[Commit] = null)
-case class Commit(id: String, authorId: Int)
+case class Commit(commitId: String, authorId: Int)
 
 class CommitsReceiver(searchStr: String) extends Receiver[Commit](StorageLevel.MEMORY_AND_DISK_2) with Logging {
 
@@ -55,8 +55,10 @@ class CommitsReceiver(searchStr: String) extends Receiver[Commit](StorageLevel.M
           val parsedItem = item.asInstanceOf[Map[String, Any]]
           val commitId = parsedItem.get("sha").get.asInstanceOf[String]
           val commiter = parsedItem.get("committer").get.asInstanceOf[Map[String, Any]]
-          val commiterId =  commiter.get("id").get.asInstanceOf[Double].intValue()
-          store(Commit(commitId, commiterId))
+          if(commiter != null){
+            val commiterId =  commiter.get("id").get.asInstanceOf[Double].intValue()
+            store(Commit(commitId, commiterId))
+          }
         }
       }
       reader.close()

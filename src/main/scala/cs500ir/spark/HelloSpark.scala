@@ -18,14 +18,19 @@ object HelloSpark {
 
     val sparkConf = new SparkConf().setAppName("infoSearch")
     val sc = new SparkContext(sparkConf)
-//    val ssc = new StreamingContext(sparkConf, Seconds(20))
-//    val customReceiverStream: DStream[Commit] = ssc.receiverStream(new CommitsReceiver(searchStr))
-//    customReceiverStream.foreachRDD { rdd =>
-//      val commit = rdd
-//
-//    }
-//    ssc.start()
-//    ssc.awaitTermination()
+
+    // сейчас эта часть работает, но если брать данные из файла, как предложил Артур, это не надо использовать
+    /*
+    val ssc = new StreamingContext(sparkConf, Seconds(20))
+    val customReceiverStream: DStream[Commit] = ssc.receiverStream(new CommitsReceiver(searchStr))
+
+    val commits = customReceiverStream.map(item => (item.authorId, 1))
+    val commitsCounts = commits.reduceByKey(_ + _)
+    commitsCounts.print()
+
+    ssc.start()
+    ssc.awaitTermination()
+    */
     // todo create RDD
 
     // todo transformations and actions
