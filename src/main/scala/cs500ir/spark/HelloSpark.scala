@@ -14,7 +14,7 @@ object HelloSpark {
 //      .getOrCreate()
 
     //get best reviewer(через файл Артура)
-    /*val df = spark.read.json("contributors.txt")
+    /*val df = spark.read.json(spark.sparkContext.wholeTextFiles("contributors2.json").values)
     df.show()
 
     val finaldf = df.select("repository", "contributors")
