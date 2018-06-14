@@ -1,33 +1,21 @@
 
 import com.google.gson.Gson;
+import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class GitHubClient {
     public static String apiURL = "https://api.github.com";
 
 
-    private static void printReposToFile() throws IOException, JSONException {
-        List<String> repoNames = getRepoNames(1000);
-        System.out.println(repoNames);
-        System.out.println(repoNames.size());
-        JSONArray arr = new JSONArray(repoNames);
-
-        String json = new Gson().toJson(repoNames);
-        PrintWriter writer = new PrintWriter("repos.txt", "UTF-8");
-        writer.println(json);
-        writer.close();
-    }
 
 
     private static String getResponse(String s) throws IOException {
@@ -84,9 +72,9 @@ public class GitHubClient {
     }
 
 
-    private static List<String> getRepoNames(int count) throws IOException, JSONException {
+    private static List<String> getRepoNames(int count, int year) throws IOException, JSONException {
         Set<String> names = new HashSet<String>();
-        Calendar cal = new GregorianCalendar(2015, 1, 1);  // allocate with the specified date
+        Calendar cal = new GregorianCalendar(year, 1, 1);  // allocate with the specified date
         SimpleDateFormat ft =
                 new SimpleDateFormat("yyyy-MM-dd");
         while (true) {
@@ -98,12 +86,13 @@ public class GitHubClient {
                     "&per_page=100";
             for (int i = 1; i <= 10; i++) {
                 names.addAll(getRepoNames(url, i));
-//                System.out.println(names.size() + " " + cal.get(Calendar.YEAR) + " " + cal.get(Calendar.MONTH));
+                System.out.println(url);
+                System.out.println(names.size() + " " + cal.get(Calendar.YEAR) + " " + cal.get(Calendar.MONTH));
                 if (names.size() >= count) {
                     return new ArrayList<String>(names);
                 }
             }
-            cal.add(Calendar.MONTH, 6);
+            cal.add(Calendar.MONTH, 1);
         }
 //        }
     }
@@ -122,25 +111,91 @@ public class GitHubClient {
     }
 
 
-    public static void main(String[] args) throws JSONException, IOException {
-        int count = 100;
-        List<String> repoNames = getRepoNames(count);
+    private static JSONArray getContributors(String filename) throws IOException, JSONException {
+//        int count = 100;
+//        List<String> repoNames = getRepoNames(count);
         List<JSONObject> jsonObjects = new ArrayList<JSONObject>();
-        for (int i = 0; i < count; i++) {
+        String s = FileUtils.readFileToString(new File(filename));
+        JSONArray repoNames = new JSONArray(s);
+        Set<String> users = new HashSet<String>();
+        for (int i = 0; i < repoNames.length(); i++) {
             try {
-                String repoName = repoNames.get(i);
+                String repoName = (String) repoNames.get(i);
                 List<Contributor> contributorsFromRepo = getContributorsFromRepo(repoName);
+                List<String> collect = contributorsFromRepo.stream().map(el -> el.login).collect(Collectors.toList());//toArray(String[]::new);
+                users.addAll(collect);
                 String jsonString = "{ \"repository\": \"" + repoName + "\", \"contributors\" : " + contributorsFromRepo + "}";
                 System.out.println(jsonString);
                 jsonObjects.add(new JSONObject(jsonString));
-            } catch (Exception e) {
-
-            }
-
+            } catch (Exception e) {}
+            System.out.println(i + " " + users.size()   );
         }
-        JSONArray arr = new JSONArray(jsonObjects);
-        System.out.println(arr);
+        return new JSONArray(jsonObjects);
     }
+
+    private static void printReposToFile(int year) throws IOException, JSONException {
+        List<String> repoNames = getRepoNames(2500, year);
+        System.out.println(repoNames);
+        System.out.println(repoNames.size());
+        JSONArray arr = new JSONArray(repoNames);
+
+        String json = new Gson().toJson(repoNames);
+        PrintWriter writer = new PrintWriter("C:\\Programming\\Scala\\infosearch\\data\\repos"+year+".json", "UTF-8");
+        writer.println(json);
+        writer.close();
+    }
+
+    private static Set<String> jsonArrayToStringSet(JSONArray array) throws JSONException {
+        Set<String> strings = new HashSet<String>();
+        for (int i = 0; i < array.length(); i++) {
+            strings.add((String) array.get(i));
+        }
+        return strings;
+    }
+
+    private static Set<String> getStringsFromFile(String filename) throws IOException, JSONException {
+        String names = FileUtils.readFileToString(new File(filename));
+        return jsonArrayToStringSet(new JSONArray(names));
+    }
+
+    public static void main(String[] args) throws JSONException, IOException {
+//        System.out.println(arr);
+//        printReposToFile(2010);
+//        printReposToFile(2011);
+//        printReposToFile(2012);
+//        printReposToFile(2013);
+//        printReposToFile(2014);
+//        printReposToFile(2015);
+//        printReposToFile(2016);
+//        printReposToFile(2017);
+//        printReposToFile(2018);
+//        Set<String> set0 = getStringsFromFile("C:\\Programming\\Scala\\infosearch\\data\\repos2010.json");
+//        Set<String> set1 = getStringsFromFile("C:\\Programming\\Scala\\infosearch\\data\\repos2011.json");
+//        Set<String> set2 = getStringsFromFile("C:\\Programming\\Scala\\infosearch\\data\\repos2012.json");
+//        Set<String> set3 = getStringsFromFile("C:\\Programming\\Scala\\infosearch\\data\\repos2013.json");
+//        Set<String> set4 = getStringsFromFile("C:\\Programming\\Scala\\infosearch\\data\\repos2014.json");
+//        Set<String> set5 = getStringsFromFile("C:\\Programming\\Scala\\infosearch\\data\\repos2015.json");
+//        Set<String> set6 = getStringsFromFile("C:\\Programming\\Scala\\infosearch\\data\\repos2016.json");
+//        Set<String> set7 = getStringsFromFile("C:\\Programming\\Scala\\infosearch\\data\\repos2017.json");
+//        Set<String> set8 = getStringsFromFile("C:\\Programming\\Scala\\infosearch\\data\\repos2018.json");
+//        set0.addAll(set1);
+//        set0.addAll(set2);
+//        set0.addAll(set3);
+//        set0.addAll(set4);
+//        set0.addAll(set5);
+//        set0.addAll(set6);
+//        set0.addAll(set7);
+//        set0.addAll(set8);
+
+//        String json = new Gson().toJson(set0);
+//
+//        FileUtils.write(new File("C:\\Programming\\Scala\\infosearch\\data\\1111.json"), json);
+//        System.out.println(set0.size());
+        JSONArray contributors = getContributors("C:\\Programming\\Scala\\infosearch\\data\\1111.json");
+        FileUtils.write(new File("C:\\Programming\\Scala\\infosearch\\data\\contributors3.json"), contributors.toString());
+    }
+
+
 
 
 }
