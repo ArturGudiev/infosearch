@@ -8,6 +8,12 @@ import org.apache.spark.sql.functions._
 
 object HelloSpark {
   def main(args: Array[String]): Unit = {
+    LocalUtils.setStreamingLogLevels()
+    val searchStr = "css"
+
+    val sparkConf = new SparkConf().setAppName("infoSearch").setMaster("local");
+    val sc = new SparkContext(sparkConf)
+
     val spark = SparkSession
       .builder()
       .appName("Spark SQL basic example")
@@ -15,7 +21,7 @@ object HelloSpark {
       .getOrCreate()
 
     //get best reviewer(через файл Артура)
-    val df = spark.read.json(spark.sparkContext.wholeTextFiles("contributors2.json").values)
+    val df = spark.read.json(sc.wholeTextFiles("contributors2.json").values)
     df.show()
 
     val finaldf = df.select("repository", "contributors")
@@ -24,14 +30,12 @@ object HelloSpark {
       .drop("contributors").drop("repository")
       .groupBy("login").sum("additions")
       .orderBy(desc("sum(additions)"))
-      .take(1).last
-    println(finaldf)
+      .take(5)
 
-    LocalUtils.setStreamingLogLevels()
-    val searchStr = "css"
 
-    val sparkConf = new SparkConf().setAppName("infoSearch")
-    val sc = new SparkContext(sparkConf)
+//    println(finaldf)
+    println(finaldf.deep.mkString("\n"))
+
 
     // сейчас эта часть работает, но если брать данные из файла, как предложил Артур, это не надо использовать
     /*
@@ -50,6 +54,6 @@ object HelloSpark {
     // todo transformations and actions
 
     // todo print result
-    println("Result is")
+//    println("Result is")
   }
 }
