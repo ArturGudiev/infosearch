@@ -54,6 +54,6 @@ object HelloSpark {
     // todo transformations and actions
 
     // todo print result
-//    println("Result is")
+    println("Result is")
   }
 }
