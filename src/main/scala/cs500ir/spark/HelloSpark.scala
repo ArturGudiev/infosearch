@@ -4,17 +4,18 @@ import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.apache.spark.sql.functions._
 
 object HelloSpark {
   def main(args: Array[String]): Unit = {
-//    val spark = SparkSession
-//      .builder()
-//      .appName("Spark SQL basic example")
-//      .config("spark.some.config.option", "some-value")
-//      .getOrCreate()
+    val spark = SparkSession
+      .builder()
+      .appName("Spark SQL basic example")
+      .config("spark.some.config.option", "some-value")
+      .getOrCreate()
 
     //get best reviewer(через файл Артура)
-    /*val df = spark.read.json(spark.sparkContext.wholeTextFiles("contributors2.json").values)
+    val df = spark.read.json(spark.sparkContext.wholeTextFiles("contributors2.json").values)
     df.show()
 
     val finaldf = df.select("repository", "contributors")
@@ -24,7 +25,7 @@ object HelloSpark {
       .groupBy("login").sum("additions")
       .orderBy(desc("sum(additions)"))
       .take(1).last
-    println(finaldf)*/
+    println(finaldf)
 
     LocalUtils.setStreamingLogLevels()
     val searchStr = "css"
