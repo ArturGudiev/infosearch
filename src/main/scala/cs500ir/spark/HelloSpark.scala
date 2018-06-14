@@ -27,11 +27,11 @@ object HelloSpark {
       .take(1).last
     println(finaldf)
 
-    LocalUtils.setStreamingLogLevels()
-    val searchStr = "css"
+//    LocalUtils.setStreamingLogLevels()
+//    val searchStr = "css"
 
-    val sparkConf = new SparkConf().setAppName("infoSearch")
-    val sc = new SparkContext(sparkConf)
+//    val sparkConf = new SparkConf().setAppName("infoSearch")
+//    val sc = new SparkContext(sparkConf)
 
     // сейчас эта часть работает, но если брать данные из файла, как предложил Артур, это не надо использовать
     /*
